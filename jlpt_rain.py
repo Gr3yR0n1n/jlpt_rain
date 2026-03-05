@@ -29,6 +29,7 @@ JLPT_FILES = {
 }
 
 def load_words(filename):
+    """Load words from a text file, one per line. Returns an empty list if the file is not found."""
     if not os.path.exists(filename):
         return []
     with open(filename, "r", encoding="utf-8") as f:
@@ -46,6 +47,10 @@ def adjust_color(canvas, color, depth):
 
 
 class JLPTRain:
+    """Tkinter app that scrolls JLPT vocabulary words across the screen in a
+    depth-layered rain effect. Words are clickable and open Jisho.org for lookup.
+    Press 1–5 to switch between JLPT levels N5–N1."""
+
     def __init__(self, root):
         self.root = root
         self.root.title("JLPT Rain")
@@ -86,6 +91,8 @@ class JLPTRain:
         webbrowser.open(self.get_jisho_url(word))
 
     def spawn_word(self):
+        """Spawn a batch of words at the right edge of the canvas, each assigned
+        a random lane, color, and speed. Reschedules itself every INTERVAL ms."""
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
         if height < 80:
@@ -116,6 +123,8 @@ class JLPTRain:
 
 
     def animate(self):
+        """Move all active words left by their speed each frame, and remove any
+        that have scrolled off the left edge. Runs every 30ms."""
         to_remove = []
         for idx, (item, speed) in enumerate(self.items):
             self.canvas.move(item, -speed, 0)
