@@ -73,17 +73,14 @@ class ScrollerApp:
                 self.words = new_words
                 self.current_level = JLPT_FILES[key].replace(".txt", "")
                 self.canvas.itemconfig(self.overlay, text=self.current_level)
-                print(f"Switched to {self.current_level} ({len(self.words)} words)")
+            else:
+                self.canvas.itemconfig(self.overlay, text=f"{JLPT_FILES[key].replace('.txt', '')} (not found)")
 
     def get_jisho_url(self, word):
-        return f"https://jisho.org/search/{word}"
+        return f"https://jisho.org/search/{quote(word)}"
 
     def get_jisho(self, event, word):
-        url1 = self.get_jisho_url(word)
-        print(f"{url1}")
-        url = f"https://jisho.org/search/{quote(word)}"
-        print(f"{url}")
-        webbrowser.open(url)        
+        webbrowser.open(self.get_jisho_url(word))
 
     def spawn_word(self):
         width = self.canvas.winfo_width()
@@ -101,22 +98,18 @@ class ScrollerApp:
 
             # Color dimmed based on depth
             color = adjust_color(self.canvas, random.choice(COLORS), depth)
-            font_size = BASE_FONT_SIZE  # keep font uniform
             speed = random.uniform(1, 3) * depth  # faster for closer lanes
             x_offset = random.randint(0, 50)
 
             # Create the word item on the canvas
             item = self.canvas.create_text(
                 width + x_offset, y,
-                text=word, fill=color, font=("Helvetica", font_size, "bold"), anchor="w"
+                text=word, fill=color, font=("Helvetica", BASE_FONT_SIZE, "bold"), anchor="w"
             )
 
             # Store the item and speed
             self.items.append((item, speed))
 
-            # Bind click event to open Jisho.org translation
-            # self.canvas.tag_bind(item, "<Button-1>", lambda e, w=word: webbrowser.open(f"https://jisho.org/search/{w}"))
-            #self.canvas.tag_bind(item, "<Button-1>", lambda e, w=word: self.get_jisho(w))
             self.canvas.tag_bind(item, "<Button-1>", lambda e, w=word: self.get_jisho(e, w))
 
         self.root.after(INTERVAL, self.spawn_word)
